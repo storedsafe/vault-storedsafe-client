@@ -2,31 +2,40 @@
 
 ansible-storedsafe-client.py is an ansible vault password client script, to be used for retrieving password from StoredSafe to be used for encryption and decryption when using ansible-vault.
 
-##### The added benefits are
+Support for previous versions of StoredSafe (pre v2.1.0) can be found in the legacy branch.
+
+**The added benefits are**
 
 - User do not have to copy and paste password from StoredSafe
 - Every retrieval of passwords to decrypt ansible-vault files or variables will be recorded in the StoredSafe audit log
 
-The script is written in Python v2 and has been tested on macOS Sierra and on Linux (any fairly recent version of Ubuntu or Red Hat should work fine).
+The script is written in Python v3 and has been tested on macOS Catalina (10.15.5) and on Linux (any fairly recent version of Ubuntu or Red Hat should work fine).
 
 It is also possible to use the StoredSafes ansible lookup module ([ansible-storedsafe](https://github.com/storedsafe/ansible-storedsafe)), if you, for any reason, do not want to use ansible-vault for storing sensitive information.
 
 ## Installation instructions
 
-This script requires Python v2 and some libraries. 
+This script requires Python v2 and some libraries.
 
-It has been developed and tested using Python v2.7.10, on macOS Mojave 10.14.4.
+It has been developed and tested using Python v3.7.7, on macOS Catalina 10.15.5.
 
-Most of the required libraries are installed by default, but requests require manual installation. 
+Most of the required libraries are installed by default, but requests require manual installation.
+
+```bash
+sudo pip install -r requirements.txt
+```
+
+or
 
 **requests:**
-```
+
+```bash
 sudo -H pip install requests
 ```
 
 ## Syntax
 
-```
+```bash
 $ vault-storedsafe-client.py --help
  --verbose                  (Boolean) Enable verbose output.
  --debug                    (Boolean) Enable debug output.
@@ -44,36 +53,41 @@ $ ./vault-storedsafe-client.py --vault-id prod-sweden-vars
 81Fb6GlZIhTYOJeCncU3D9Z2gc3XfzyLSAF2bJOc
 ```
 
-```
+```bash
 --verbose
-``` 
+```
+
 > Add verbose output.
 
-```
+```bash
 --debug
 ```
+
 > Add debug output.
 
-```
+```bash
 --vault-id <string>
 ```
+
 > Search for string in StoredSafe and match it against host or username fields in any template having those fields and return the decrypted password.
 
-```
+```bash
 --vault-id <object-id>
 ```
+
 > Returns the decrypted password field for any template having an encrypted password with the exact Object-ID.
 
-Usage
-=====
-vault-storedsafe-client.py utilises StoredSafe's REST API to lookup passwords in StoredSafe to encrypt files and/or variables for ansible-vault. 
+## Usage
+
+vault-storedsafe-client.py utilises StoredSafe's REST API to lookup passwords in StoredSafe to encrypt files and/or variables for ansible-vault.
 
 vault-storedsafe-client.py requires that pre-authentication has been performed by the StoredSafe token handler CLI module ([storedsafe-tokenhandler.py](https://github.com/storedsafe/tokenhandler)) and stored in the init file ~/.storedsafe-client.rc.
 
-#### To create an encrypted file
+### To create an encrypted file
+
 Search for any object matching the string ```prod-sweden-config``` against the hostname or user field in StoredSafe and use the password to encrypt the file.
 
-```
+```bash
 $ cat moo.yml
 ---
 - name: cow power!
@@ -94,10 +108,12 @@ $ANSIBLE_VAULT;1.2;AES256;prod-sweden-config
 3061656464646334330a303864363938386536366561663234643863643566386634376431313530
 37366635323438303764303738656232353034613462633238303961653936626265
 ```
-#### To view an encrypted file
+
+### To view an encrypted file
+
 Search for any object matching the string ```prod-sweden-config``` against the hostname or user field in StoredSafe and use the password to decrypt the file.
 
-```
+```bash
 $ ansible-vault --vault-id=prod-sweden-config@vault-storedsafe-client.py view moo.yml
 ---
 - name: cow power!
@@ -110,10 +126,11 @@ $ ansible-vault --vault-id=prod-sweden-config@vault-storedsafe-client.py view mo
       msg: mooOOooo0000oooo
 ```
 
-#### To create an encrypted variable
+### To create an encrypted variable
+
 Search for any object matching the string ```prod-sweden-vars``` against the hostname or user field in StoredSafe and use the password to encrypt the variable ```new_user_password```.
 
-```
+```bash
 $ ansible-vault encrypt_string --vault-id=prod-sweden-vars@vault-storedsafe-client.py --stdin-name 'new_user_password'
 Reading plaintext input from stdin. (ctrl-d to end input)
 mooOOooo0000oooo
@@ -129,7 +146,7 @@ Encryption successful
 
 Search for any object matching the string ```prod-sweden-config``` against the hostname or user field in StoredSafe and use the password to decrypt files or variables when running the playbook ```moo.yml```.
 
-```
+```bash
 $ ansible-playbook --vault-id=prod-sweden-config@vault-storedsafe-client.py moo.yml
 
 PLAY [cow power!] ***************************************************************
@@ -156,4 +173,5 @@ PLAY RECAP *********************************************************************
 - [https://docs.ansible.com/ansible/latest/user_guide/vault.html](https://docs.ansible.com/ansible/latest/user_guide/vault.html)
 
 ## License
+
 AGPLv3

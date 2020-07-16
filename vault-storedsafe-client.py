@@ -5,7 +5,6 @@
 vault-storedsafe-client.py: ansible vault password client script for StoredSafe
 """
 
-from __future__ import print_function
 import sys
 import os
 import os.path
@@ -20,9 +19,9 @@ import json
 import pprint
 
 __author__     = "Fredrik Soderblom"
-__copyright__  = "Copyright 2019, AB StoredSafe"
+__copyright__  = "Copyright 2020, AB StoredSafe"
 __license__    = "GPL"
-__version__    = "1.0.0"
+__version__    = "1.0.1"
 __maintainer__ = "Fredrik Soderblom"
 __email__      = "fredrik@storedsafe.com"
 __status__     = "Production"
@@ -98,7 +97,7 @@ def usage():
 
 def readrc(rc_file):
   if os.path.isfile(rc_file):
-    f = open(rc_file, 'rU')
+    f = open(rc_file, 'r')
     for line in f:
       if "token" in line:
         token = re.sub('token:([a-zA-Z0-9]+)\n$', r'\1', line)
@@ -154,10 +153,10 @@ def searchForCredentials(search):
     return(False)
   
   if (len(data['OBJECT'])): # Unless result is empty
-    for v in data['OBJECT'].iteritems():
-      if (search == data['OBJECT'][v[0]]['public']['host']) or (search == data['OBJECT'][v[0]]['public']['username']):
-        if verbose: sys.stderr.write("Found match for \"%s\" (Object-ID %s in Vault-ID %s)\n" % (search, v[0], data['OBJECT'][v[0]]["groupid"]))
-        secret = getPassword(v[0])
+    for object in data["OBJECT"]:
+      if (search == object['public']['host']) or (search == object['public']['username']):
+        if verbose: sys.stderr.write("Found match for \"%s\" (Object-ID %s in Vault-ID %s)\n" % (search, object['id'], object['groupid']))
+        secret = getPassword(object['id'])
   
   if secret:
     return(secret)
@@ -173,8 +172,8 @@ def getPassword(id):
     return(False)
 
   try:
-    if (len(data['OBJECT'][id]["crypted"]["password"])):
-      return(data['OBJECT'][id]["crypted"]["password"])
+    if (len(data['OBJECT'][0]['crypted']['password'])):
+      return(data['OBJECT'][0]['crypted']['password'])
   except:
     sys.stderr.write("WARNING: Could not find any credentials in Object-ID \"%s\".\n" % id)
     return(False)
