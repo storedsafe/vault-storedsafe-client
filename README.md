@@ -15,7 +15,7 @@ It is also possible to use the StoredSafes ansible lookup module ([ansible-store
 
 ## Installation instructions
 
-This script requires Python v2 and some libraries.
+This script requires Python v3 and the request library.
 
 It has been developed and tested using Python v3.7.7, on macOS Catalina 10.15.5.
 
